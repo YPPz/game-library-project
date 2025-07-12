@@ -6,9 +6,10 @@ import { toast } from "react-hot-toast";
 interface Props {
   game: WishlistItem;
   forceActive?: boolean;
+  onRemove?: () => void;
 }
 
-export default function AddToWishlist({ game, forceActive = false }: Props) {
+export default function AddToWishlist({ game, forceActive = false, onRemove }: Props) {
   const [isActive, setIsActive] = useState(forceActive);
   const [isClicked, setIsClicked] = useState(false);
 
@@ -31,6 +32,8 @@ export default function AddToWishlist({ game, forceActive = false }: Props) {
       // ลบออก
       updatedList = wishlist.filter((item) => item.id !== game.id);
       toast.error(`Removed "${game.name}" from wishlist ❌`);
+      // ✅ เรียก callback ถ้ามี เพื่อบอก parent ให้ลบการ์ด
+      if (onRemove) onRemove();
 
     } else {
       // เพิ่มเข้า

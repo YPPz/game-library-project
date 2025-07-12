@@ -15,9 +15,11 @@ export default function WishlistPage() {
     }, []);
 
     const handleRemove = (id: number) => {
-        const updated = wishlist.filter((game) => game.id !== id);
-        setWishlist(updated);
-        localStorage.setItem("wishlist", JSON.stringify(updated));
+        setTimeout(() => {
+            const updated = wishlist.filter((game) => game.id !== id);
+            setWishlist(updated);
+            localStorage.setItem("wishlist", JSON.stringify(updated));
+        }, 500);
     };
 
     return (
@@ -62,10 +64,11 @@ export default function WishlistPage() {
                                         >
                                             View
                                         </Link>
-                                        <div onClick={() => handleRemove(game.id)}>
+                                        <div>
                                             <AddToWishlist
                                                 game={game}
                                                 forceActive={true} // กำหนดให้โชว์หัวใจแดง
+                                                onRemove={()=>handleRemove(game.id)}
                                             />
                                         </div>
                                     </div>

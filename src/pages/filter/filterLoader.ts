@@ -9,6 +9,12 @@ export interface FilterLoaderResult {
     next: string | null;
 }
 
+// type LoaderFunctionArgs = {
+//   request: Request;
+//   params: Params<string>;
+//   context?: any;
+// };
+
 export async function filterLoader({ params }: { params: { type?: string } }): Promise<FilterLoaderResult> {
     const type = params.type;
     let results: SearchSummary[] = [];
@@ -40,7 +46,24 @@ export async function filterLoader({ params }: { params: { type?: string } }): P
     };
 }
 
-export async function categoryGameLoader({ params }: LoaderFunctionArgs) {
+// export async function filterLoader({ params }: { params: { type?: string } }): Promise<FilterLoaderResult> {
+//   const type = params.type;
+
+//   const fetchMap = {
+//     top: getTopGame,
+//     new: getNewGame,
+//     all: getAllGame,
+//     trending: getTrendingGame,
+//   } as const;
+
+//   const fetchFn = fetchMap[type as keyof typeof fetchMap];
+//   if (!fetchFn) throw new Error("Invalid filter type");
+
+//   const { results, next } = await fetchFn();
+//   return { searchResults: results, next };
+// }
+
+export async function categoryGameLoader({ params }: { params: { slug?: string } }) {
     const slug = params.slug;
     if (!slug) throw new Error("No category slug provided");
 

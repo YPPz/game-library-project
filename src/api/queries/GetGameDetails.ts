@@ -7,7 +7,7 @@ export async function getGameDetails(id: string): Promise<GameDetails> {
 
     const data = await res.json();
 
-     if (typeof data.id === "string") {
+    if (typeof data.id === "string") {
         data.id = Number(data.id);
     }
     // console.log(data)

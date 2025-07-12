@@ -50,7 +50,7 @@ export async function getAllGame(): Promise<SearchResponse> {
 
 
 //ใช้ในหน้า home
-export async function getTrendingGame(): Promise<SearchResponse> {
+export async function getTrendingGame(): Promise<SearchResponse> { //ในช่วง 90 วันล่าสุด
   const today = new Date().toISOString().split("T")[0];
   const past90Days = new Date();
   past90Days.setDate(past90Days.getDate() - 90);

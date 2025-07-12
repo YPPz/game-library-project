@@ -2,7 +2,7 @@ import type { Category } from "../types/Category";
 import type { SearchResponse } from "./GetSearchGames";
 import { API_KEY, BASE_URL } from "../api";
 
-//In this project, we use categories as genres.
+//In this project, we use category as genre.
 
 export async function getGameCategory(): Promise<Category[]> {
     const res = await fetch(`https://api.rawg.io/api/genres?key=${API_KEY}`);
