@@ -1,12 +1,12 @@
 import React from 'react';
-import type { OrderOption } from '../api/types/OrderOption';
+import type { SortOption } from '../api/types/GameOrdering';
 
-interface OrderByProps {
-  value: OrderOption;
-  onSortChange: (orderBy: OrderOption) => void;
+interface SortByProps {
+  value: SortOption;
+  onSortChange: (orderBy: SortOption) => void;
 }
 
-const OrderBy: React.FC<OrderByProps> = ({ value, onSortChange }) => {
+const SortBy: React.FC<SortByProps> = ({ value, onSortChange }) => {
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base">
       <label htmlFor="order" className="text-gray-800 dark:text-gray-200 font-medium">
@@ -15,7 +15,7 @@ const OrderBy: React.FC<OrderByProps> = ({ value, onSortChange }) => {
       <select
         id="order"
         value={value}
-        onChange={(e) => onSortChange(e.target.value as OrderOption)}
+        onChange={(e) => onSortChange(e.target.value as SortOption)}
         className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all"
       >
         <option value="name">Name (A-Z)</option>
@@ -26,4 +26,4 @@ const OrderBy: React.FC<OrderByProps> = ({ value, onSortChange }) => {
   );
 };
 
-export default OrderBy;
+export default SortBy;

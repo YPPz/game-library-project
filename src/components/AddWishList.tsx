@@ -56,8 +56,7 @@ export default function AddToWishlist({ game, forceActive = false, onRemove }: P
         className={`
           text-xl text-gray-700
           transition-all duration-200
-          ${isActive ? "opacity-100" : "opacity-20"}
-          ${!isActive && "hover:opacity-70"}
+          ${isActive ? "opacity-100" : "opacity-20 hover:opacity-70"}
           ${isClicked ? "scale-150" : "scale-100"}
         `}
       >

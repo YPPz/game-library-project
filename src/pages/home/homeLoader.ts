@@ -2,8 +2,8 @@ import { getTopGame, getTrendingGame, getAllGame } from "../../api/queries/GetFi
 
 export async function homeLoader() {
   const [trending, top, all] = await Promise.all([
-    getTrendingGame(),
-    getTopGame(),
+    getTrendingGame(6),
+    getTopGame(15),
     getAllGame()
   ]);
 
@@ -13,8 +13,8 @@ export async function homeLoader() {
     .slice(0, 5);
 
   return {
-    trending: trending.results.slice(0, 6),
-    top: top.results.slice(0, 15),
+    trending: trending.results,
+    top: top.results,
     randomSuggest
   };
 }

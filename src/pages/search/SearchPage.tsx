@@ -4,8 +4,10 @@ import type { SearchLoaderResult } from "./searchLoader";
 import GameCardList from "../../components/GameCardList";
 import { SearchGames } from "../../api/queries/GetSearchGames";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import OrderBy from "../../components/OrderBy";
-import type { OrderOption } from "../../api/types/OrderOption";
+import SortBy from "../../components/SortBy";
+import { fetchSortedGames } from "../../api/queries/FetchSortedGames";
+import type { SortOption } from "../../api/types/GameOrdering";
+import { SortByMap } from "../../api/types/GameOrdering";
 
 export default function SearchPage() {
     const data = useLoaderData() as SearchLoaderResult;
@@ -15,48 +17,44 @@ export default function SearchPage() {
     const [nextUrl, setNextUrl] = useState<string | null>(data.next);
     const [isLoading, setIsLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
-    const [orderBy, setOrderBy] = useState<OrderOption>("popularity");
+    const [sortBy, setSortBy] = useState<SortOption>("popularity");
 
-
-
+    // 🔄 โหลดใหม่ทุกครั้งที่ sortBy หรือ search term เปลี่ยน
     useEffect(() => {
+    const fetchData = async () => {
         setInitialLoading(true);
-        setGames(data.searchResults);
-        setNextUrl(data.next);
-        setTimeout(() => {
-            setInitialLoading(false);
-        }, 500);
-    }, [currentURL.search, data.searchResults, data.next]);
+        try {
+            const { results, next } = await fetchSortedGames(data.term, sortBy);
+            setGames(results);
+            setNextUrl(next);
+        } catch (error) {
+            console.error("Failed to fetch sorted games:", error);
+        } finally {
+            setTimeout(() => {
+                setInitialLoading(false);
+            }, 500);
+        }
+    };
+
+    fetchData();
+}, [currentURL.search, data.term, sortBy]);
+
 
     const handleLoadMore = async () => {
         if (!nextUrl) return;
 
         setIsLoading(true);
-        const { results, next } = await SearchGames(data.term, nextUrl);
-        setGames((prev) => [...prev, ...results]);
-        setNextUrl(next);
-        setIsLoading(false);
+        try {
+            const ordering = SortByMap[sortBy];
+            const { results, next } = await SearchGames(data.term, nextUrl, 40, ordering);
+            setGames((prev) => [...prev, ...results]);
+            setNextUrl(next);
+        } catch (error) {
+            console.error("Failed to load more games:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    const sortedGames = [...games].sort((a, b) => {
-        if (orderBy === "name") {
-            return a.name.localeCompare(b.name);
-        }
-        if (orderBy === "released") {
-            return new Date(b.released || "").getTime() - new Date(a.released || "").getTime();
-        }
-        if (orderBy === "popularity") {
-            const scoreA = (a.rating || 0) + (a.rating_top || 0) + (a.added || 0);
-            const scoreB = (b.rating || 0) + (b.rating_top || 0) + (b.added || 0);
-            return scoreB - scoreA;
-        }
-        return 0;
-    });
-
-    const renderGame = sortedGames.map((game) => (
-        <GameCardList key={game.id} game={game} />
-    )); 
-    
 
     return (
         <div className='relative'>
@@ -68,7 +66,7 @@ export default function SearchPage() {
                     </h1>
 
                     <div className="mb-6">
-                        <OrderBy value={orderBy} onSortChange={setOrderBy} />
+                        <SortBy value={sortBy} onSortChange={setSortBy} />
                     </div>
 
                     {games.length === 0 ? (
@@ -80,7 +78,9 @@ export default function SearchPage() {
                     ) : (
                         <>
                             <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 justify-center">
-                               {renderGame}
+                                {games.map((game) => (
+                                    <GameCardList key={game.id} game={game} />
+                                ))}
                             </div>
 
                             {nextUrl && (

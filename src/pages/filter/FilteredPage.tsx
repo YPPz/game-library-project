@@ -1,74 +1,58 @@
-import { useLoaderData, useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { FilterLoaderResult } from "./filterLoader";
+import type { SearchSummary } from "../../api/types/SearchSummary";
 import GameCardList from "../../components/GameCardList";
-import { FilteredGames } from "../../api/queries/GetFilteredGame";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import OrderBy from "../../components/OrderBy";
-import type { OrderOption } from "../../api/types/OrderOption";
+import SortBy from "../../components/SortBy";
+import type { SortOption } from "../../api/types/GameOrdering";
+import { loadMoreFilteredGames } from "../../api/queries/GetFilteredGame";
+import { fetchSortedFilteredGames } from "../../api/queries/FetchSortedGames";
 
 export default function FilteredPage() {
-  const data = useLoaderData() as FilterLoaderResult;
-
+  const currentURL = useLocation();
   const { type, slug } = useParams();
-  const title = type || slug || "Games"; //แบบย่อจากข้างล่าง
-  // title = "Games";
-  //    if (type) {title = type;} 
-  //    else if (slug) {title = slug;}
+  const isCategoryPage = !!slug;
+  const title = type || slug || "all";
 
-  const [games, setGames] = useState(data.searchResults);//หน้าแรกที่ fetch มา
-  const [nextUrl, setNextUrl] = useState<string | null>(data.next);
+  const [games, setGames] = useState<SearchSummary[]>([]);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [orderBy, setOrderBy] = useState<OrderOption>("popularity");
+  const [sortBy, setSortBy] = useState<SortOption>("popularity");
 
   useEffect(() => {
-    setInitialLoading(true);//เปิด LoadingSpinner
-    setGames(data.searchResults);
-    setNextUrl(data.next);
-    setTimeout(() => {
-      setInitialLoading(false); //ปิด LoadingSpinner
-    }, 500);
-  }, [title, data.searchResults, data.next]);
+    const fetchData = async () => {
+      setInitialLoading(true);
+      setGames([]);        // ✅ reset list ก่อนโหลดใหม่
+      setNextUrl(null);    // ✅ reset next url
+      try {
+        const { results, next } = await fetchSortedFilteredGames(title, sortBy);
+        setGames(results);
+        setNextUrl(next);
+      } catch (error) {
+        console.error("Failed to fetch filtered games:", error);
+      } finally {
+        setTimeout(() => setInitialLoading(false), 500);
+      }
+    };
 
+    if (!isCategoryPage && sortBy !== "popularity") return;
+    fetchData();
+  }, [title, sortBy, currentURL.search]);
 
   const handleLoadMore = async () => {
     if (!nextUrl || !title) return;
-
     setIsLoading(true);
     try {
-      const { results, next } = await FilteredGames(title, nextUrl);
-      // console.log("Loaded results:", results.length, "Next URL:", next);
+      const { results, next } = await loadMoreFilteredGames(title, nextUrl);
       setGames((prev) => [...prev, ...results]);
       setNextUrl(next);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error loading more games:", error);
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   };
-
-  const sortedGames = [...games].sort((a, b) => {
-    if (orderBy === "name") {
-      return a.name.localeCompare(b.name);
-    }
-    if (orderBy === "released") {
-      return new Date(b.released || "").getTime() - new Date(a.released || "").getTime();
-    }
-    if (orderBy === "popularity") {
-      const scoreA = (a.rating || 0) + (a.rating_top || 0) + (a.added || 0);
-      const scoreB = (b.rating || 0) + (b.rating_top || 0) + (b.added || 0);
-      return scoreB - scoreA;
-    }
-    return 0;
-  });
-
-  const renderGame = sortedGames.map((game) => (
-    <GameCardList key={game.id} game={game} />
-  ));
-
 
   return (
     <div className='relative'>
@@ -83,11 +67,13 @@ export default function FilteredPage() {
             </h1>
           </div>
 
-          <div className="mb-6">
-            <OrderBy value={orderBy} onSortChange={setOrderBy} />
-          </div>
+          {isCategoryPage && (
+            <div className="mb-6">
+              <SortBy value={sortBy} onSortChange={setSortBy} />
+            </div>
+          )}
 
-          {games.length === 0 ? (
+          {!initialLoading && games.length === 0 ? (
             <div className="text-center mt-20">
               <p className="text-gray-600 text-lg dark:text-gray-400">
                 😢 No games found.
@@ -96,7 +82,9 @@ export default function FilteredPage() {
           ) : (
             <>
               <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                {renderGame}
+                {games.map((game) => (
+                  <GameCardList key={game.id} game={game} />
+                ))}
               </div>
 
               {nextUrl && (

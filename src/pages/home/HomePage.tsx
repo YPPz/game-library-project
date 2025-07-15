@@ -1,6 +1,8 @@
 import { useLoaderData } from "react-router-dom";
 import type { SearchSummary } from "../../api/types/SearchSummary";
-import { HomeTrendCard, HomeTopCard, HomeRandomCard } from "../../components/HomePageCard";
+import { HomeTrendCard } from "../../components/HomeTrendCard";
+import { HomeTopCard } from "../../components/HomeTopCard";
+import { HomeRandomCard } from "../../components/HomeRandomCard";
 import logo from '../../assets/myICON_WE_2025 ver.nobg.png'
 
 interface HomeData {
