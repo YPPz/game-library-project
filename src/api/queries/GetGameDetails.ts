@@ -2,6 +2,7 @@ import type { GameDetails } from "../types/GameDetails";
 import { API_KEY, BASE_URL } from "../api";
 
 export async function getGameDetails(id: string): Promise<GameDetails> {
+    if (!API_KEY) throw new Error("API key is missing");
     const res = await fetch(`${BASE_URL}/${id}?key=${API_KEY}`)
     if (!res.ok) throw new Error("Failed to fetch games");
 

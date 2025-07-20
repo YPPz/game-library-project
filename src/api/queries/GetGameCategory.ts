@@ -4,6 +4,7 @@ import { API_KEY } from "../api";
 //In this project, we use category as genre.
 
 export async function getGameCategory(): Promise<Category[]> {
+    if (!API_KEY) return [];
     const res = await fetch(`https://api.rawg.io/api/genres?key=${API_KEY}`);
     if (!res.ok) throw new Error("Failed to fetch categories");
 

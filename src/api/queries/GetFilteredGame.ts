@@ -3,8 +3,9 @@ import type { SearchResponse } from "./GetSearchGames";
 import { GameOrdering } from "../types/GameOrdering";
 
 async function fetchGames(ordering: string[], dates?: Date[], pageSize: number = 40): Promise<SearchResponse> {
+  if (!API_KEY) return { results: [], next: null }; 
+  
   let url = `${BASE_URL}?ordering=${ordering}&page_size=${pageSize}&key=${API_KEY}`;
-
   if (dates && dates.length === 2) {
     const dateStr = dates.map((d) => d.toISOString().split("T")[0]).join(",");
     // แปลง Date[] เป็น string ในรูปแบบ "YYYY-MM-DD,YYYY-MM-DD"
@@ -52,6 +53,8 @@ export async function getTrendingGame(pageSize: number = 40): Promise<SearchResp
 
 // --- Fetch Load more function ---
 export async function loadMoreFilteredGames(type: string, url?: string, pageSize: number = 40, ordering?: string): Promise<SearchResponse> {
+  if (!API_KEY) return { results: [], next: null };
+  
   async function getGameByGenreSlug(slug: string, pageSize: number, ordering?: string): Promise<SearchResponse> {
     let url = `${BASE_URL}?key=${API_KEY}&page_size=${pageSize}&genres=${slug}`;
     if (ordering) url += `&ordering=${ordering}`;

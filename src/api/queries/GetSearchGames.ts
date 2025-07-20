@@ -7,7 +7,7 @@ export interface SearchResponse {
 }
 
 export async function SearchGames(term: string, nextUrl?: string, pageSize: number = 40, ordering?: string): Promise<SearchResponse> {
-
+  if (!API_KEY) return { results: [], next: null }; 
   // ถ้าเป็น nextUrl (สำหรับ load more)
   if (nextUrl) {
     const res = await fetch(nextUrl);
