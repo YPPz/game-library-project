@@ -16,6 +16,8 @@ export async function getGameDetails(id: string): Promise<GameDetails> {
 }
 
 export async function getGameScreenshots(id: string) {
+    if (!API_KEY) throw new Error("API key is missing");
+    
     const res = await fetch(`${BASE_URL}/${id}/screenshots?key=${API_KEY}`);
     // console.log("Fetching screenshots from:", res);
     if (!res.ok) throw new Error("Failed to fetch screenshots");
