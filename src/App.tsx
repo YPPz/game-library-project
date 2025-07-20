@@ -13,17 +13,20 @@ import CategoryPage from './pages/category/CategoryPage';
 import { categoriesLoader } from './pages/category/categoriesLoader';
 import WishlistPage from './pages/WishlistPage';
 import HistoryPage from './pages/HistoryPage';
+import ErrorPage from './pages/ErrorPage';
 
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
         element: <HomePage />,
-        loader: homeLoader
+        loader: homeLoader,
+        errorElement: <ErrorPage />
       },
       {
         path: '/game/:id',
@@ -33,30 +36,36 @@ const router = createBrowserRouter([
       {
         path: '/search',
         element: <SearchPage />,
-        loader: searchLoader
+        loader: searchLoader,
+        errorElement: <ErrorPage />
       },
       {
         path: '/filtered/:type',
         element: <FilteredPage />,
-        loader: filterLoader
+        loader: filterLoader,
+        errorElement: <ErrorPage />
       },
       {
         path: '/categories',
         element: <CategoryPage />,
-        loader: categoriesLoader
+        loader: categoriesLoader,
+        errorElement: <ErrorPage />
       },
       {
-        path: "/category/:slug", 
+        path: "/category/:slug",
         element: <FilteredPage />,
         loader: categoryGameLoader,
+        errorElement: <ErrorPage />
       },
       {
         path: '/wishlist',
-        element: <WishlistPage/>,
+        element: <WishlistPage />,
+        errorElement: <ErrorPage />
       },
       {
         path: '/history',
-        element: <HistoryPage/>,
+        element: <HistoryPage />,
+        errorElement: <ErrorPage />
       },
     ]
   }
@@ -67,7 +76,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-[#3b3939] dark:text-white transition-colors duration-300">
-      <Toaster position="bottom-center"/>
+      <Toaster position="bottom-center" />
       <RouterProvider router={router} />
     </div>
   )
